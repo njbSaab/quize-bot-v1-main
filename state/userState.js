@@ -1,8 +1,11 @@
-//userState.js
 const fs = require("fs").promises;
 const path = require("path");
+const moment = require("moment");
 
 const stateFilePath = path.join(__dirname, "../data/userStates.json");
+
+// Функция для форматирования даты
+const formatDate = (date) => moment(date).format("YYYY-MM-DD_HH:mm:ss");
 
 module.exports = async (ctx, isCorrectAnswer = false, userInfo = null) => {
   try {
@@ -63,26 +66,33 @@ module.exports = async (ctx, isCorrectAnswer = false, userInfo = null) => {
       userSession.email = userInfo.email || userSession.email;
     }
 
-    // Увеличение счетчика сессии, если началась новая сессия
-    if (!ctx.session.questionIndex || ctx.session.questionIndex === 0) {
-      userSession.data.counter += 1;
-    }
+    const currentCounter = userSession.data.counter + 1;
+    const currentCounterString = currentCounter.toString();
 
-    const currentCounter = userSession.data.counter.toString();
-
-    // Инициализация данных для текущей сессии, если они отсутствуют
-    if (!userSession.data[currentCounter]) {
-      userSession.data[currentCounter] = {
+    // Проверка и установка startDate для новой сессии
+    if (!userSession.data[currentCounterString]) {
+      userSession.data.counter = currentCounter;
+      userSession.data[currentCounterString] = {
         correctAnswers: 0,
         totalQuestions: 0,
+        startDate: formatDate(new Date()), // Дата начала сессии, отформатированная
+        endDate: null, // Пока не завершена
       };
     }
 
     // Обновление статистики текущей сессии
     if (isCorrectAnswer !== null) {
-      userSession.data[currentCounter].totalQuestions += 1;
+      userSession.data[currentCounterString].totalQuestions += 1;
       if (isCorrectAnswer) {
-        userSession.data[currentCounter].correctAnswers += 1;
+        userSession.data[currentCounterString].correctAnswers += 1;
+      }
+
+      // Устанавливаем дату завершения, если викторина завершена
+      if (
+        ctx.session.questionIndex &&
+        ctx.session.questionIndex >= (ctx.session.totalQuestions || 0)
+      ) {
+        userSession.data[currentCounterString].endDate = formatDate(new Date()); // Дата завершения, отформатированная
       }
 
       // Обновление общей статистики
@@ -99,6 +109,7 @@ module.exports = async (ctx, isCorrectAnswer = false, userInfo = null) => {
       "utf8"
     );
 
+    // Логи с форматированными датами
     console.log(`User ID: ${userId}`);
     console.log(`Username: ${username}`);
     console.log(`First Name: ${firstName}`);
@@ -108,10 +119,20 @@ module.exports = async (ctx, isCorrectAnswer = false, userInfo = null) => {
     console.log(`Name: ${userSession.name}`);
     console.log(`Email: ${userSession.email}`);
     console.log(
-      `Session ${currentCounter}: Correct Answers: ${userSession.data[currentCounter].correctAnswers}`
+      `Session ${currentCounter}: Start Date: ${userSession.data[currentCounterString].startDate}`
     );
     console.log(
-      `Session ${currentCounter}: Total Questions: ${userSession.data[currentCounter].totalQuestions}`
+      `Session ${currentCounter}: End Date: ${
+        userSession.data[currentCounterString].endDate
+          ? userSession.data[currentCounterString].endDate
+          : "Not finished yet"
+      }`
+    );
+    console.log(
+      `Session ${currentCounter}: Correct Answers: ${userSession.data[currentCounterString].correctAnswers}`
+    );
+    console.log(
+      `Session ${currentCounter}: Total Questions: ${userSession.data[currentCounterString].totalQuestions}`
     );
     console.log(`Overall Correct Answers: ${userSession.data.correctAnswers}`);
     console.log(`Overall Total Questions: ${userSession.data.totalQuestions}`);
