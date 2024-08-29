@@ -82,17 +82,5 @@ module.exports = [
     ],
     "correctAnswer": "Индия",
     "imageUrl": "https://cff2.earth.com/uploads/2023/11/01145206/saturn_moon_rings-vanish_galaxy_1medium.jpg"
-  },
-  {
-    "id": 10,
-    "question": "Кто изобрел лампочку?",
-    "options": [
-      "Томас Эдисон",
-      "Никола Тесла",
-      "Альберт Эйнштейн",
-      "Галилео Галилей"
-    ],
-    "correctAnswer": "Томас Эдисон",
-    "imageUrl": null
   }
 ];
