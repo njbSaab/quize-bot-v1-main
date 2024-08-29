@@ -117,6 +117,7 @@ module.exports = (bot) => {
       console.error("Ошибка при обработке ответа:", err);
     }
   });
+
   bot.on("text", async (ctx) => {
     try {
       if (ctx.session.awaitingName) {

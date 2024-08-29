@@ -3,18 +3,19 @@
     {
       "id": "7066816061:7066816061",
       "data": {
-        "questionIndex": 2,
+        "questionIndex": 3,
         "awaitingName": false,
         "name": "nj",
         "awaitingEmailConfirmation": true,
         "awaitingEmail": false,
-        "email": "saab"
+        "email": "saab@nj",
+        "counter": 1
       }
     },
     {
       "id": "5075411916:5075411916",
       "data": {
-        "questionIndex": 7,
+        "questionIndex": 1,
         "awaitingName": false,
         "name": "nj",
         "awaitingEmailConfirmation": true,

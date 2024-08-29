@@ -66,19 +66,22 @@ module.exports = async (ctx, isCorrectAnswer = false, userInfo = null) => {
       userSession.email = userInfo.email || userSession.email;
     }
 
-    const currentCounter = userSession.data.counter + 1;
-    const currentCounterString = currentCounter.toString();
+    // Определяем текущий counter
+    const currentCounter = userSession.data.counter;
 
-    // Проверка и установка startDate для новой сессии
-    if (!userSession.data[currentCounterString]) {
-      userSession.data.counter = currentCounter;
-      userSession.data[currentCounterString] = {
+    // Если новая сессия, увеличиваем counter и создаем новый блок данных
+    if (ctx.session.questionIndex === 0 || !userSession.data[currentCounter]) {
+      userSession.data.counter += 1;
+      userSession.data[userSession.data.counter] = {
         correctAnswers: 0,
         totalQuestions: 0,
         startDate: formatDate(new Date()), // Дата начала сессии, отформатированная
         endDate: null, // Пока не завершена
       };
     }
+
+    // Используем обновленный currentCounterString
+    const currentCounterString = userSession.data.counter.toString();
 
     // Обновление статистики текущей сессии
     if (isCorrectAnswer !== null) {
@@ -119,20 +122,20 @@ module.exports = async (ctx, isCorrectAnswer = false, userInfo = null) => {
     console.log(`Name: ${userSession.name}`);
     console.log(`Email: ${userSession.email}`);
     console.log(
-      `Session ${currentCounter}: Start Date: ${userSession.data[currentCounterString].startDate}`
+      `Session ${currentCounterString}: Start Date: ${userSession.data[currentCounterString].startDate}`
     );
     console.log(
-      `Session ${currentCounter}: End Date: ${
+      `Session ${currentCounterString}: End Date: ${
         userSession.data[currentCounterString].endDate
           ? userSession.data[currentCounterString].endDate
           : "Not finished yet"
       }`
     );
     console.log(
-      `Session ${currentCounter}: Correct Answers: ${userSession.data[currentCounterString].correctAnswers}`
+      `Session ${currentCounterString}: Correct Answers: ${userSession.data[currentCounterString].correctAnswers}`
     );
     console.log(
-      `Session ${currentCounter}: Total Questions: ${userSession.data[currentCounterString].totalQuestions}`
+      `Session ${currentCounterString}: Total Questions: ${userSession.data[currentCounterString].totalQuestions}`
     );
     console.log(`Overall Correct Answers: ${userSession.data.correctAnswers}`);
     console.log(`Overall Total Questions: ${userSession.data.totalQuestions}`);

@@ -1,10 +1,10 @@
-//bot.js
 const { Telegraf } = require("telegraf");
 const config = require("./config/config");
 const startStopCommands = require("./commands/startStopCommands");
 const quizActions = require("./actions/quizActions");
 const sessionMiddleware = require("./middleware/sessionMiddleware");
 const { syncQuestions } = require("./services/questionService");
+const { syncDataToDB } = require("./services/userSyncDataToBD"); // Импорт функции
 
 // Импорт cron-задач
 require("./utils/cronJobs");
@@ -31,6 +31,9 @@ bot.catch((err, ctx) => {
 // Запуск бота
 async function startBot() {
   try {
+    // Синхронизация данных с базой данных перед запуском бота
+    await syncDataToDB();
+
     await bot.launch();
     console.log("Бот запущен...");
   } catch (err) {

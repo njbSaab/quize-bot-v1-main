@@ -1,5 +1,5 @@
 const fs = require("fs").promises;
-const userService = require("./userService"); // Подключение к сервисам пользователя
+const userService = require("./userService");
 
 async function syncDataToDB() {
   try {
@@ -10,14 +10,10 @@ async function syncDataToDB() {
       const { id, username, firstName, lastName, email, data } = user;
       const { counter, correctAnswers, totalQuestions } = data;
 
-      // Подготовка данных для записи в базу
       const dbData = JSON.stringify(data);
-
-      // Проверка на существование пользователя в базе данных
       const userExists = await userService.getUserStateByUserId(id);
 
       if (userExists) {
-        // Обновление данных пользователя
         await userService.updateUserState(
           id,
           username,
@@ -30,7 +26,6 @@ async function syncDataToDB() {
           dbData
         );
       } else {
-        // Вставка новых данных пользователя
         await userService.createUserState(
           id,
           username,
@@ -46,8 +41,6 @@ async function syncDataToDB() {
     }
 
     console.log("Данные успешно синхронизированы с базой данных.");
-
-    // Очищаем JSON после успешной синхронизации
     await fs.writeFile(
       "./data/userStates.json",
       JSON.stringify({ sessions: [] }, null, 2),
@@ -58,5 +51,6 @@ async function syncDataToDB() {
   }
 }
 
-// Вызов функции для синхронизации данных
-syncDataToDB();
+module.exports = {
+  syncDataToDB,
+};

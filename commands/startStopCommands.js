@@ -7,7 +7,10 @@ module.exports = (bot) => {
   // Обработка команды /start
   bot.command("start", async (ctx) => {
     try {
-      // Обновляем сессию пользователя, если необходимо
+      // Увеличение счетчика при каждом запуске викторины
+      ctx.session.counter = (ctx.session.counter || 0) + 1;
+
+      // Обновляем сессию пользователя
       const counter = await userState(ctx);
       await ctx.reply(
         `Добро пожаловать на наш квиз! Вы запустили эту команду ${counter} раз(а).`,
@@ -31,6 +34,8 @@ module.exports = (bot) => {
   // Обработка команды и текстового ввода "start"
   bot.hears("start", async (ctx) => {
     try {
+      ctx.session.counter = (ctx.session.counter || 0) + 1;
+
       const counter = await userState(ctx);
       await ctx.reply(
         `Добро пожаловать на наш квиз! Вы запустили эту команду ${counter} раз(а).`,
