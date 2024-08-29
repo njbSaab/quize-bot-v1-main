@@ -1,0 +1,93 @@
+Создание веток, создание pull request и слияние веток (merge) в GitHub — это стандартные операции в рабочем процессе с использованием системы контроля версий Git. Вот пошаговое руководство по выполнению этих действий:
+
+1. Создание новой ветки
+Откройте терминал или командную строку на вашем компьютере.
+
+Перейдите в директорию вашего локального репозитория:
+
+sh
+Copy code
+git branch
+Вы должны увидеть звёздочку (*) рядом с текущей веткой.
+
+Создайте новую ветку и переключитесь на неё:
+
+git checkout -b new-branch-name
+Или, если вы хотите создать ветку на основе другой ветки:
+
+
+git add .
+git commit -m "Описание изменений"
+Отправьте новую ветку на GitHub:
+
+
+git push origin new-branch-name
+2. Создание Pull Request
+Перейдите на страницу вашего репозитория на GitHub.
+
+Переключитесь на новую ветку в выпадающем меню ветки (обычно находится в верхней правой части страницы).
+
+Нажмите на кнопку "New pull request" (обычно находится рядом с выпадающим меню ветки).
+
+Выберите базовую ветку (куда вы хотите слить изменения) и ветку с изменениями (откуда).
+
+Добавьте заголовок и описание для pull request, чтобы объяснить, что было изменено.
+
+Нажмите на кнопку "Create pull request".
+
+3. Слияние Pull Request
+После создания pull request, GitHub покажет вам страницу с подробностями о pull request.
+
+Проверьте изменения и убедитесь, что все в порядке.
+
+Если есть конфликты, их нужно разрешить. GitHub предоставит инструкции по разрешению конфликтов.
+
+Если все в порядке, нажмите на кнопку "Merge pull request".
+
+Подтвердите слияние, нажав на кнопку "Confirm merge".
+
+Удалите ветку, если она больше не нужна, нажав на кнопку "Delete branch".
+
+
+
+
+
+Удаление node_modules и package-lock.json:
+
+Удалите папку node_modules:
+
+rm -rf node_modules
+Удалите файл package-lock.json:
+
+
+rm package-lock.json
+Переустановите зависимости:
+
+
+npm install
+Очистка npm кеша:
+
+Очистите кеш npm:
+npm cache clean --force
+
+
+rm -rf venv
+Создайте новое виртуальное окружение:
+
+
+
+
+TELEGRAM_BOT_TOKEN=7450578407:AAE-egeDtujgQHFAAX5wgHu3VDGxSE3P2w0
+DATABASE_PATH=./data/userStates.db
+DATABASE_HOST=localhost
+DATABASE_PORT=3306
+DATABASE_USER=root
+DATABASE_PASSWORD=
+DATABASE_NAME=tgquizbot
+
+
+# DATABASE_HOST=localhost
+# DATABASE_PORT=3306
+# DATABASE_USER=tgquizbot_usr
+# DATABASE_PASSWORD=2cbr3HPbjjLDJRVb
+# DATABASE_NAME=tgquizbot
