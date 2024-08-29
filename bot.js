@@ -6,6 +6,10 @@ const quizActions = require("./actions/quizActions");
 const sessionMiddleware = require("./middleware/sessionMiddleware");
 const { syncQuestions } = require("./services/questionService");
 
+// Импорт cron-задач
+require("./utils/cronJobs");
+
+// Остальной код вашего бота
 const bot = new Telegraf(config.botToken);
 
 // Настройка сессий
@@ -13,6 +17,7 @@ bot.use(sessionMiddleware);
 
 // Обработка команд
 startStopCommands(bot);
+
 quizActions(bot);
 
 // Синхронизация вопросов из базы данных с локальным файлом
