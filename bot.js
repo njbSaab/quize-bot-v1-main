@@ -4,6 +4,7 @@ const config = require("./config/config");
 const startStopCommands = require("./commands/startStopCommands");
 const quizActions = require("./actions/quizActions");
 const sessionMiddleware = require("./middleware/sessionMiddleware");
+const { syncQuestions } = require("./services/questionService");
 
 const bot = new Telegraf(config.botToken);
 
@@ -13,6 +14,9 @@ bot.use(sessionMiddleware);
 // Обработка команд
 startStopCommands(bot);
 quizActions(bot);
+
+// Синхронизация вопросов из базы данных с локальным файлом
+syncQuestions();
 
 // Глобальный обработчик ошибок
 bot.catch((err, ctx) => {

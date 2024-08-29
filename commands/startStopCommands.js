@@ -7,6 +7,7 @@ module.exports = (bot) => {
   // Обработка команды /start
   bot.command("start", async (ctx) => {
     try {
+      // Обновляем сессию пользователя, если необходимо
       const counter = await userState(ctx);
       await ctx.reply(
         `Добро пожаловать на наш квиз! Вы запустили эту команду ${counter} раз(а).`,

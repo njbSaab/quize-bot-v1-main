@@ -1,10 +1,11 @@
 //quizActions.js
 const { Markup } = require("telegraf"); // Импортируем Markup для создания inline-кнопок
-const questions = require("../questions/questions");
+const questions = require("../services/questions");
 const userState = require("../state/userState");
 const fs = require("fs").promises;
 const path = require("path");
 const stateFilePath = path.join(__dirname, "../data/userStates.json");
+const { getQuestionsFromDatabase } = require("../services/questionService"); // Импорт функции
 
 module.exports = (bot) => {
   bot.action(/answer_\d+/, async (ctx) => {
@@ -54,8 +55,13 @@ module.exports = (bot) => {
 
       const selectedOptionIndex = parseInt(ctx.match[0].split("_")[1]);
       const question = questions[questionIndex];
-      const isCorrect =
-        question.options[selectedOptionIndex] === question.correctAnswer;
+
+      // Преобразование options из строки в массив, если это необходимо
+      const options =
+        typeof question.options === "string"
+          ? JSON.parse(question.options)
+          : question.options;
+      const isCorrect = options[selectedOptionIndex] === question.correctAnswer;
 
       // Обновление состояния пользователя
       await userState(ctx, isCorrect);
@@ -111,7 +117,6 @@ module.exports = (bot) => {
       console.error("Ошибка при обработке ответа:", err);
     }
   });
-
   bot.on("text", async (ctx) => {
     try {
       if (ctx.session.awaitingName) {
@@ -251,43 +256,69 @@ module.exports = (bot) => {
 
 // Функция для запуска викторины
 async function startQuiz(ctx) {
-  const questionIndex = ctx.session.questionIndex || 0;
-  if (questionIndex >= questions.length) {
+  try {
+    const questionIndex = ctx.session.questionIndex || 0;
+
+    // Загружаем вопросы из базы данных
+    const questions = await getQuestionsFromDatabase();
+
+    if (questionIndex >= questions.length) {
+      await ctx.reply(
+        "Викторина завершена. Спасибо за участие! Остался последний шаг"
+      );
+      return;
+    }
+
+    const question = questions[questionIndex];
+
+    // Преобразование options из строки в массив, если это необходимо
+    const options =
+      typeof question.options === "string"
+        ? JSON.parse(question.options)
+        : question.options;
+
+    // Проверим, что options действительно является массивом
+    if (!Array.isArray(options)) {
+      console.error("Ошибка: options не является массивом.", options);
+      await ctx.reply(
+        "Произошла ошибка при обработке вопроса. Пожалуйста, попробуйте позже."
+      );
+      return;
+    }
+
+    const optionsMarkup = {
+      reply_markup: {
+        inline_keyboard: [
+          ...options.reduce((acc, option, index) => {
+            const rowIndex = Math.floor(index / 2);
+            if (!acc[rowIndex]) {
+              acc[rowIndex] = [];
+            }
+            acc[rowIndex].push({
+              text: option,
+              callback_data: `answer_${index}`,
+            });
+            return acc;
+          }, []),
+          [{ text: "Назад", callback_data: "back" }],
+        ],
+      },
+    };
+
+    if (question.imageUrl) {
+      await ctx.replyWithPhoto(
+        { url: question.imageUrl },
+        { caption: question.question, ...optionsMarkup }
+      );
+    } else {
+      await ctx.reply(question.question, optionsMarkup);
+    }
+  } catch (error) {
+    console.error("Ошибка при запуске викторины:", error);
     await ctx.reply(
-      "Викторина завершена. Спасибо за участие! Остался последний шаг"
+      "Произошла ошибка при запуске викторины. Пожалуйста, попробуйте позже."
     );
-    return;
-  }
-
-  const question = questions[questionIndex];
-  const optionsMarkup = {
-    reply_markup: {
-      inline_keyboard: [
-        ...question.options.reduce((acc, option, index) => {
-          const rowIndex = Math.floor(index / 2);
-          if (!acc[rowIndex]) {
-            acc[rowIndex] = [];
-          }
-          acc[rowIndex].push({
-            text: option,
-            callback_data: `answer_${index}`,
-          });
-          return acc;
-        }, []),
-        [{ text: "Назад", callback_data: "back" }],
-      ],
-    },
-  };
-
-  if (question.imageUrl) {
-    await ctx.replyWithPhoto(
-      { url: question.imageUrl },
-      { caption: question.question, ...optionsMarkup }
-    );
-  } else {
-    await ctx.reply(question.question, optionsMarkup);
   }
 }
-
 // Экспортируем функцию startQuiz отдельно
 module.exports.startQuiz = startQuiz;
